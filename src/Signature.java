@@ -1,7 +1,7 @@
 import java.util.List;
 
 /**
- * The class of a signature of layout
+ * The class of a signature
  * 
  * @author sauliuss
  * 
@@ -50,12 +50,12 @@ public class Signature {
 	 *            - number of occurrence
 	 * @return
 	 */
-	private String getLineAt(List<String> source, String tag, int n) {
+	private String getLineAt(List<String> strList, String tag, int n) {
 
 		int occur = 0;
-		for (int i = 0; i < source.size(); i++) {
+		for (int i = 0; i < strList.size(); i++) {
 
-			String line = source.get(i);
+			String line = strList.get(i);
 
 			if (line.startsWith(tag)) {
 				occur++;
