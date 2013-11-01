@@ -216,7 +216,7 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 				setText(node.getName());
 				return this;
 
-			} else { // jei value yra signaturos listas
+			} else { // if value is a list of signatures
 
 				List<String> sign = (List<String>) value;
 				String tag = sign.get(0);

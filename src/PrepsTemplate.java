@@ -9,76 +9,52 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-// Klase aptarnaujanti Preps sablona
+/**
+ * @author sauliuss The class maintains a Preps template file
+ */
 public class PrepsTemplate {
 
-	// viso sablono eilute
-	String template;
-
-	// masyvas su sablono eilutemis
-	List<String> templArray;
+	// Preps template strings array
+	// List<String> templArray;
 
 	// masyvas su pirmutinemis sablono eilutemis
 	List<String> header = new ArrayList<String>();
 
-	// masyvas talpinantis signaturu masyvus
-	List<List<String>> signatures = new ArrayList<List<String>>();
+	// The list of signatures
+	List<Signature> signaturesList = new ArrayList<Signature>();
 
-	// Konstruktorius priemantis sablono faila
+	/**
+	 * The constructor takes a file oject
+	 * 
+	 * @param file
+	 */
 	public PrepsTemplate(File file) {
 
-		readFile(file);
-		// getHeader();
-		getSignatures(templArray);
-
+		List<String> strArray = readFile(file);
+		getSignatures(strArray);
 	}
 
-	// Measurement conversion from millimeters to points.
-	public static final float millimetersToPoints(final float value) {
-		return inchesToPoints(millimetersToInches(value));
-	}
-
-	// Measurement conversion from millimeters to inches.
-	public static final float millimetersToInches(final float value) {
-		return value / 25.4f;
-	}
-
-	// Measurement conversion from points to millimeters.
-	public static final float pointsToMillimeters(final float value) {
-		return inchesToMillimeters(pointsToInches(value));
-	}
-
-	// Measurement conversion from points to inches.
-	public static final float pointsToInches(final float value) {
-		return value / 72f;
-	}
-
-	// Measurement conversion from inches to millimeters.
-	public static final float inchesToMillimeters(final float value) {
-		return value * 25.4f;
-	}
-
-	// Measurement conversion from inches to points.
-	public static final float inchesToPoints(final float value) {
-		return value * 72f;
-	}
-
-	// Skaitome sablono faila
-	private void readFile(File file) {
+	/**
+	 * The method reads a template file into the list of strings
+	 * 
+	 * @param file
+	 */
+	private List<String> readFile(File file) {
 
 		FileInputStream inFile = null;
 		BufferedReader reader = null;
+		List<String> strList = null;
 
 		try {
 
 			inFile = new FileInputStream(file);
 			reader = new BufferedReader(new InputStreamReader(inFile, "UTF8"));
 			String line;
-			templArray = new ArrayList<String>();
+			strList = new ArrayList<String>();
 
 			while ((line = reader.readLine()) != null) {
 
-				templArray.add(line);
+				strList.add(line);
 			}
 
 		} catch (FileNotFoundException e) {
@@ -101,28 +77,56 @@ public class PrepsTemplate {
 			}
 
 		}
+
+		return strList;
 	}
 
-	// ieskome duotame masyve sablono eilutes, pasikartojancio n-taji karta
-	private static String getLineAt(List<String> source, String tag, int n) {
+	/**
+	 * The method creates the list of strings for each signature found the list
+	 * of template
+	 * 
+	 * @param source
+	 */
+	private void getSignatures(List<String> source) {
 
-		int occur = 0;
-		for (int i = 0; i < source.size(); i++) {
+		int signStart = 0;
+		List<String> strList = new ArrayList<String>();
 
-			String line = source.get(i);
+		signStart = getLineIndex(source, "%SSiSignature:", 0);
+		if (signStart != -1) {
+			// looking for a next signature
+			int nextSignStart = getLineIndex(source, "%SSiSignature:",
+					signStart + 1);
+			// if the next signature has found
+			if (nextSignStart != -1) {
 
-			if (line.startsWith(tag)) {
-				occur++;
-				if (occur == n) {
-					return line;
-				}
+				Signature sign = new Signature(source.subList(signStart,
+						nextSignStart));
+				signaturesList.add(sign);
+				getSignatures(source.subList(nextSignStart, source.size()));
+
+			} else {
+
+				Signature sign = new Signature(source.subList(signStart,
+						source.size()));
+				signaturesList.add(sign);
 			}
 		}
-		return null;
 	}
 
-	// ieskome duotame masyve sablono eilutes indekso nuo nurodytos vietos
-	private static int getLineIndexAt(List<String> source, String tag, int from) {
+	/**
+	 * The method looks for the line which begins with a given tag and returns
+	 * an index of the line
+	 * 
+	 * @param source
+	 *            - list of strings
+	 * @param tag
+	 *            which starts the line
+	 * @param from
+	 *            which line the searching begins
+	 * @return index of the found line
+	 */
+	private int getLineIndex(List<String> source, String tag, int from) {
 
 		for (int i = from; i < source.size(); i++) {
 
@@ -134,6 +138,37 @@ public class PrepsTemplate {
 		}
 		return -1;
 	}
+
+	/**
+	 * Returns signature by an index
+	 * @param index
+	 * @return signature
+	 */
+	public Signature getSignature(int index) {
+
+		return signaturesList.get(index);
+	}
+
+	/**
+	 * Returns the list of signatures
+	 * @return
+	 */
+	public List<Signature> getSignaturesList() {
+
+		return signaturesList;
+
+	}
+
+	/**
+	 * Returns the count of all signatures
+	 * @return
+	 */
+	public int getSignaturesCount() {
+
+		return signaturesList.size();
+	}
+
+
 
 	// ieskome paskutini tago indeksa
 	private int getLastIndex(List<String> source, int from, String tag) {
@@ -204,102 +239,20 @@ public class PrepsTemplate {
 
 	}
 
-	private List<String> getSubList(List<String> source, int from, int to) {
-
-		return source.subList(from, to + 1);
-	}
-
 	// atskiriame sablono titulines eilutes i atskira masyva
 	private void getHeader() {
 
 		int startHdr = 0;
 		int endHdr = 7;
-		header.addAll(templArray.subList(startHdr, endHdr));
+		header.addAll(strList.subList(startHdr, endHdr));
 
 	}
 
-	// atskiriame visas signaturas i atskirus masyvus
-	private void getSignatures(List<String> source) {
 
-		int start = 0;
 
-		start = getLineIndexAt(source, "%SSiSignature:", 0);
-		if (start != -1) {
-			// ieskome sekancios signaturos uz pries tai surastos
-			int nextSignStart = getLineIndexAt(source, "%SSiSignature:",
-					start + 1);
-			// jei sekanti signatura yra
-			if (nextSignStart != -1) { 
 
-				List<String> sign = new ArrayList<String>();
-				sign.addAll(source.subList(start, nextSignStart));
-				signatures.add(sign);
-				getSignatures(source.subList(nextSignStart, source.size()));
 
-			} else {
-				List<String> sign = new ArrayList<String>();
-				sign.addAll(source.subList(start, source.size()));
-				signatures.add(sign);
-			}
-		}
-	}
 
-	// graziname signaturu lista
-	public List<List<String>> getSignaturesList() {
-
-		return signatures;
-
-	}
-
-	// graziname signatura pagal numeri
-	public List<String> getSignature(int index) {
-
-		return signatures.get(index);
-	}
-
-	// graziname siganturu skaiciu
-	public int getSignaturesCount() {
-
-		return signatures.size();
-	}
-
-	// graziname siganturos pavadinima
-	public static String getSignatureName(List<String> signature) {
-
-		String tag = signature.get(0);
-		String signName = tag.split("\\|")[1];
-		return signName;
-	}
-
-	// graziname signaturos ploti
-	public static float getSignatureWidth(List<String> signature) {
-
-		String tag = getLineAt(signature, "%SSiPressSheet:", 1);
-		if (tag != null) {
-			String value = getValueAt(tag, 1);
-			return Float.valueOf(value);
-		}
-
-		return -1;
-	}
-
-	// graziname signaturos auksti
-	public static float getSignatureHeight(List<String> signature) {
-
-		String tag = getLineAt(signature, "%SSiPressSheet:", 1);
-		if (tag != null) {
-			String value = getValueAt(tag, 2);
-			return Float.valueOf(value);
-		}
-		return -1;
-	}
-
-	// graziname reiksme eiluteje nurodytu indeksu
-	private static String getValueAt(String str, int index) {
-
-		String[] strArr = str.split(" ");
-		return strArr[index];
-	}
 
 	// graziname impozicijos masyva
 	private static List<String> getImposition(List<String> signature) {
