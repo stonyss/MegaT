@@ -81,7 +81,7 @@ public class StaticContentPane extends JPanel implements MegaTConstants {
 	gbc_paneJobInfo.gridy = 0;
 	add(paneJobInfo, gbc_paneJobInfo);
 
-	// Widths area
+	// Widths area  
 	TitledBorder titledBorder = new TitledBorder(border, " Pages widths ");
 	JPanel pageWidthPanel = new JPanel(new GridLayout(2, 4, 10, 10));
 	pageWidthPanel.setBorder(titledBorder);
