@@ -67,22 +67,18 @@ public class Utility {
 	 * 
 	 * @param strList
 	 * @param tag
-	 * @param n
-	 *            - number of occurrence
+	 * @param from
+	 *            - an index from which the search begins
 	 * @return - integer index
 	 */
-	public static int getLineIndex(List<String> strList, String tag, int n) {
+	public static int getLineIndex(List<String> strList, String tag, int from) {
 
-		int occur = 0;
-		for (int i = 0; i < strList.size(); i++) {
+		for (int i = from; i < strList.size(); i++) {
 
 			String line = strList.get(i);
 
 			if (line.startsWith(tag)) {
-				occur++;
-				if (occur == n) {
-					return i;
-				}
+				return i;
 			}
 		}
 		return -1;
@@ -123,23 +119,15 @@ public class Utility {
 
 		if (from != -1 && to != -1) {
 
-			// if 'to' tag is the last return all remaining lines
-			if (to == strList.size() - 1) {
+			// if inclusively
+			if (incl) {
 
-				return strList.subList(from, strList.size());
+				return strList.subList(from, to + 1);
 
+				// else if exclusively
 			} else {
 
-				// if inclusively
-				if (incl) {
-
-					return strList.subList(from, to + 1);
-
-					// else if exclusively
-				} else {
-
-					return strList.subList(from, to);
-				}
+				return strList.subList(from, to);
 			}
 
 		} else {
@@ -166,7 +154,7 @@ public class Utility {
 		}
 		return i;
 	}
-	
+
 	// ieskome paskutini tago indeksa
 	private int getLastIndex(List<String> source, int from, String tag) {
 

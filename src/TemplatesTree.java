@@ -255,8 +255,7 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 		// PrepsTemplate.getColumnsCount(sign) + "x" +
 		// PrepsTemplate.getRowsCount(sign));
 	
-		//staticPane.getPrepLayoutPanel().makeImpositionGrid(rows, cols, width,
-		//		height, numbers, rotations);
+		staticPane.getPrepLayoutPanel().makeImpositionGrid(sign);
 	}
 
 }

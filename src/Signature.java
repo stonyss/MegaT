@@ -342,6 +342,8 @@ public class Signature {
 		String page;
 		int orientation;
 		if (strList != null) {
+			
+			int mask = 4;
 
 			pagesRotations = new int[strList.size()];
 			for (int i = 0; i < strList.size(); i++) {
@@ -349,18 +351,18 @@ public class Signature {
 				page = strList.get(i);
 				orientation = Integer.valueOf(Utility.getValueAt(page, 5));
 
-				switch (orientation) {
+				switch (orientation - mask) {
 
-				case 3:
+				case 0:
 					pagesRotations[i] = 270;
 					break;
-				case 4:
+				case 1:
 					pagesRotations[i] = 180;
 					break;
-				case 5:
+				case 2:
 					pagesRotations[i] = 90;
 					break;
-				case 6:
+				case 3:
 					pagesRotations[i] = 0;
 					break;
 				default:

@@ -85,10 +85,10 @@ public class PrepsTemplate {
 
 		int signStart = 0;
 
-		signStart = Utility.getLineIndexAt(strList, "%SSiSignature:", 0);
+		signStart = Utility.getLineIndex(strList, "%SSiSignature:", 0);
 		if (signStart != -1) {
 			// looking for a next signature
-			int nextSignStart = Utility.getLineIndexAt(strList, "%SSiSignature:",
+			int nextSignStart = Utility.getLineIndex(strList, "%SSiSignature:",
 					signStart + 1);
 			// if the next signature has found
 			if (nextSignStart != -1) {
