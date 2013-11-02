@@ -111,12 +111,13 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 						break;
 					}
 				}
-			} else if (child instanceof List<?>) {
+			} else if (child instanceof Signature) {
 
-				List<String> sign = (List<String>) child;
-				List<List<String>> signatures = templ.getSignaturesList();
+				Signature sign = (Signature) child;
+				List<Signature> signatures = templ.getSignaturesList();
 				for (int i = 0; i < signatures.size(); ++i) {
-					if (sign.get(0).equals(signatures.get(i).get(0))) {
+					if (sign.getFirstLine().equals(
+							signatures.get(i).getFirstLine())) {
 						result = i;
 						break;
 					}
@@ -216,12 +217,10 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 				setText(node.getName());
 				return this;
 
-			} else { // if value is a list of signatures
+			} else { // if value is a signature
 
-				List<String> sign = (List<String>) value;
-				String tag = sign.get(0);
-				String sigName = tag.split("\\|")[1];
-				setText(sigName);
+				Signature sign = (Signature) value;
+				setText(sign.getSigName());
 				return this;
 			}
 		}
@@ -230,11 +229,7 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 	public void valueChanged(TreeSelectionEvent e) {
 
 		Object object = e.getPath().getLastPathComponent();
-		List<String> sign = new ArrayList<String>();
-		int ws = -1; // workstyle code
-		float signWidth;
-		float signHeight;
-		float pageHeight;
+		Signature sign = null;
 
 		if (object instanceof File) {
 
@@ -247,31 +242,21 @@ public class TemplatesTree extends JPanel implements TreeSelectionListener {
 				return;
 			}
 
-		} else if (object instanceof List) {
+		} else if (object instanceof Signature) {
 
-			sign = (List) object;
+			sign = (Signature) object;
 		}
 
-		ws = PrepsTemplate.getWorkstyle(sign);
-		signWidth = PrepsTemplate.getSignatureWidth(sign);
-		signHeight = PrepsTemplate.getSignatureHeight(sign);
-		pageHeight = PrepsTemplate.getPageHeight(sign);
-
-		staticPane.setPressSheetSize(signWidth, signHeight);
-		staticPane.setWorkstyle(ws);
-		staticPane.setPageHeight(pageHeight);
+		staticPane.setPressSheetSize(sign);
+		staticPane.setWorkstyle(sign);
+		staticPane.setPageHeight(sign);
 
 		// System.out.println("Imposition: " +
 		// PrepsTemplate.getColumnsCount(sign) + "x" +
 		// PrepsTemplate.getRowsCount(sign));
-		int cols = PrepsTemplate.getColumnsCount(sign);
-		int rows = PrepsTemplate.getRowsCount(sign);
-		float width = PrepsTemplate.getPageWidth(sign);
-		float height = PrepsTemplate.getPageHeight(sign);
-		int[] rotations = PrepsTemplate.getRotations(sign);
-		int[] numbers = PrepsTemplate.getPageNumbers(sign);
-		staticPane.getPrepLayoutPanel().makeImpositionGrid(rows, cols, width,
-				height, numbers, rotations);
+	
+		//staticPane.getPrepLayoutPanel().makeImpositionGrid(rows, cols, width,
+		//		height, numbers, rotations);
 	}
 
 }

@@ -7,6 +7,10 @@ import java.util.List;
  * 
  */
 public class Signature {
+	
+	
+	// the list of all lines in a signature
+	private List<String> signatureList;
 
 	// the name of the signature
 	private String sigName;
@@ -44,6 +48,12 @@ public class Signature {
 	// the list of imposition's pages
 	private List<String> impositionPagesList;
 
+	// the array of pages rotations
+	private int[] pagesRotations;
+	
+	// the array of pages numbers
+	private int[] pagesNumbers;
+
 	/**
 	 * Constructor
 	 * 
@@ -52,21 +62,24 @@ public class Signature {
 	 */
 	public Signature(List<String> strList) {
 
-		readName(strList);
-		readWorkstyle(strList);
-		readSignatureDimension(strList);
-		readImposition(strList);
+		signatureList= strList;
+		readName(signatureList);
+		readWorkstyle(signatureList);
+		readSignatureDimension(signatureList);
+		readImposition(signatureList);
 		readPageDimension(impositionList);
 		readVerticalGaps(impositionList);
 		readHorizontalGaps(impositionList);
 		columns = Utility.getTagCount(verticalGaps, "%SSiPrshMatrix: 5");
 		rows = Utility.getTagCount(horizontalGaps, "%SSiPrshMatrix: 5");
 		readImpositionPages(impositionList);
+		readRotations(impositionPagesList);
+		readPagesNumbers(impositionPagesList);
 
 	}
 
 	/**
-	 * Returns the name of a signature
+	 * Reads the name of a signature
 	 * 
 	 * @param signature
 	 */
@@ -74,6 +87,114 @@ public class Signature {
 
 		String line = strList.get(0);
 		sigName = line.split("\\|")[1];
+	}
+
+	/**
+	 * @return the sigName
+	 */
+	public String getSigName() {
+		return sigName;
+	}
+
+	/**
+	 * @return the signWidth
+	 */
+	public float getSignWidth() {
+		return signWidth;
+	}
+
+	/**
+	 * @return the signHeight
+	 */
+	public float getSignHeight() {
+		return signHeight;
+	}
+
+	/**
+	 * @return the impositionList
+	 */
+	public List<String> getImpositionList() {
+		return impositionList;
+	}
+
+	/**
+	 * @return the pageHeight
+	 */
+	public float getPageHeight() {
+		return pageHeight;
+	}
+
+	/**
+	 * @return the pageWidth
+	 */
+	public float getPageWidth() {
+		return pageWidth;
+	}
+
+	/**
+	 * @return the verticalGaps
+	 */
+	public List<String> getVerticalGaps() {
+		return verticalGaps;
+	}
+
+	/**
+	 * @return the horizontalGaps
+	 */
+	public List<String> getHorizontalGaps() {
+		return horizontalGaps;
+	}
+
+	/**
+	 * @return the columns
+	 */
+	public int getColumns() {
+		return columns;
+	}
+
+	/**
+	 * @return the rows
+	 */
+	public int getRows() {
+		return rows;
+	}
+
+	/**
+	 * @return the workStyle
+	 */
+	public int getWorkStyle() {
+		return workStyle;
+	}
+
+	/**
+	 * @return the impositionPagesList
+	 */
+	public List<String> getImpositionPagesList() {
+		return impositionPagesList;
+	}
+
+	/**
+	 * @return the pagesRotations
+	 */
+	public int[] getPagesRotations() {
+		return pagesRotations;
+	}
+
+	/**
+	 * @return the pagesNumbers
+	 */
+	public int[] getPagesNumbers() {
+		return pagesNumbers;
+	}
+	
+	/**
+	 * Returns the first line of signature for identification
+	 * @param strList
+	 * @return
+	 */
+	public String getFirstLine() {
+		
+		return signatureList.get(0);
 	}
 
 	/**
@@ -104,7 +225,7 @@ public class Signature {
 	private void readImposition(List<String> strList) {
 
 		impositionList = Utility.getSubList(strList, "%SSiPrshMatrix: 1",
-				"%SSiPrshMatrix: 7");
+				"%SSiPrshMatrix: 7", true);
 	}
 
 	/**
@@ -198,13 +319,76 @@ public class Signature {
 		}
 	}
 
-	// graziname impozicijos puslapius (%SSiPrshPage tagus)
+	/**
+	 * Reads all lines with %SSiPrshPage tag in the imposition
+	 * 
+	 * @param strList
+	 */
 	private void readImpositionPages(List<String> strList) {
 
 		if (strList != null) {
 
 			impositionPagesList = Utility.getSubList(strList, "%SSiPrshPage:",
-					"%SSiPrshMatrix: 7");
+					"%SSiPrshMatrix: 7", false);
+		}
+	}
+
+	/**
+	 * Reads orientations of pages and puts them into array
+	 * @param strList
+	 */
+	private void readRotations(List<String> strList) {
+
+		String page;
+		int orientation;
+		if (strList != null) {
+
+			pagesRotations = new int[strList.size()];
+			for (int i = 0; i < strList.size(); i++) {
+
+				page = strList.get(i);
+				orientation = Integer.valueOf(Utility.getValueAt(page, 5));
+
+				switch (orientation) {
+
+				case 3:
+					pagesRotations[i] = 270;
+					break;
+				case 4:
+					pagesRotations[i] = 180;
+					break;
+				case 5:
+					pagesRotations[i] = 90;
+					break;
+				case 6:
+					pagesRotations[i] = 0;
+					break;
+				default:
+					pagesRotations[i] = 0;
+					break;
+				}
+			}
+
+		}
+	}
+	
+	/**
+	 * Reads page number and puts it into array
+	 * @param strList
+	 */
+	private void readPagesNumbers(List<String> strList) {
+
+		String page;
+		int number;
+		if (strList != null) {
+
+			pagesNumbers = new int[strList.size()];
+			for (int i = 0; i < strList.size(); i++) {
+
+				page = strList.get(i);
+				number = Integer.valueOf(Utility.getValueAt(page, 6));
+				pagesNumbers[i] = number;
+			}
 		}
 	}
 
